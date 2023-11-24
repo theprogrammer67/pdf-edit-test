@@ -1,6 +1,7 @@
 package service
 
 import (
+	"io"
 	"log"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
@@ -100,4 +101,11 @@ func writeText(
 	model.WriteColumn(xRefTable, buf, mediaBox, region, td, w)
 
 	// draw.DrawHairCross(buf, 0, 0, r)
+}
+
+func AddWatermark(rs io.ReadSeeker, w io.Writer, text string) {
+	// font := "Roboto-Regular"
+	// desc := fmt.Sprintf("font:%s, rtl:off, align:l, scale:1.0 rel, rot:0, fillc:#000000, bgcol:#ab6f30, margin:10, border:10 round, opacity:.7", font)
+	// var pages = []string{"7"}
+
 }

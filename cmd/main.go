@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"path/filepath"
 	"pdf-edit/internal/service"
+	"pdf-edit/pkg/filebuffer"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/font"
@@ -17,6 +17,8 @@ import (
 )
 
 func main() {
+	fileDir := "/home/stoi/temp"
+
 	api.LoadConfiguration()
 	font.UserFontDir, _ = filepath.Abs("../internal/fonts")
 	fmt.Printf("Fonts dir: %s\n", font.UserFontDir)
@@ -42,10 +44,11 @@ func main() {
 
 	// return
 
-	service.CreatePdf("/home/stoi/temp/Certificate.pdf", "This is certificate\nSecond line\nЭто сертификат")
+	fp = filepath.Join(fileDir, "Certificate.pdf")
+	service.CreatePdf(fp, "This is certificate\nSecond line\nЭто сертификат")
 
-	inFile := "/home/stoi/temp/braun_g1500.pdf"
-	outFile := "/home/stoi/temp/braun_g1500_stamp.pdf"
+	inFile := filepath.Join(fileDir, "braun_g1500.pdf")
+	outFile := filepath.Join(fileDir, "braun_g1500_stamp.pdf")
 	align, rtl := "l", "off"
 	desc := fmt.Sprintf("font:%s, rtl:%s, align:%s, scale:1.0 rel, rot:0, fillc:#000000, bgcol:#ab6f30, margin:10, border:10 round, opacity:.7", "Roboto-Regular", rtl, align)
 	var pages = []string{"7"}
@@ -66,13 +69,18 @@ func main() {
 	// 	log.Fatal(err.Error())
 	// }
 
-	f, err := os.Open("/home/stoi/temp/braun_g1500.pdf")
+	// f, err := os.Open("/home/stoi/temp/braun_g1500.pdf")
+	// if err != nil {
+	// 	log.Fatal(err.Error())
+	// }
+	// defer f.Close()
+
+	b, err := filebuffer.ReadFile(inFile)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	defer f.Close()
 
-	info, err := api.PDFInfo(f, "/home/stoi/temp/braun_g1500.pdf", nil, nil)
+	info, err := api.PDFInfo(b, "braun_g1500.pdf", nil, nil)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -80,9 +88,9 @@ func main() {
 		log.Fatal("Empty file info")
 	}
 
-	log.Println(info.PageCount)
-	log.Println(info.PageDimensions)
-	log.Println(info)
+	fmt.Printf("Page count: %d\n", info.PageCount)
+	fmt.Printf("Page dimensions: %v\n", info.PageDimensions)
+	fmt.Printf("Info: %v\n", info)
 
 }
 
