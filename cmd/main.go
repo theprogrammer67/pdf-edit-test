@@ -29,19 +29,13 @@ func main() {
 		log.Printf("Error install font: %v\n", err)
 	}
 
-	// err := font.LoadUserFonts()
-	// if err != nil {
-	// 	log.Printf("Error loading fonts: %v\n", err)
+	// for _, fn := range font.UserFontNames() {
+	// 	fmt.Printf("User font: %s\n", fn)
 	// }
 
-	// log.Println("User fonts:")
-	for _, fn := range font.UserFontNames() {
-		fmt.Printf("User font: %s\n", fn)
-	}
-	// log.Println("Core fonts:")
-	for _, fn := range font.CoreFontNames() {
-		fmt.Printf("Core font: %s\n", fn)
-	}
+	// for _, fn := range font.CoreFontNames() {
+	// 	fmt.Printf("Core font: %s\n", fn)
+	// }
 
 	inFile := filepath.Join(fileDir, fileName+".pdf")
 	outFile := filepath.Join(fileDir, fileName+"_stamp.pdf")
@@ -52,7 +46,8 @@ func main() {
 	}
 	outBuff := filebuffer.NewFileBuffer(nil)
 
-	service.AddWatermark(inBuff, outBuff, "Документ подписан электронной подписью 30.10.2923 16:10 (МСК)\nКлиент    Курбатов Андрей Алесеевич\nЭлектронный документ    A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5", nil)
+	stamp := "Документ подписан электронной подписью 30.10.2923 16:10 (МСК)\nКлиент    Курбатов Андрей Алексеевич\nЭлектронный документ    A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5"
+	service.AddStamp(inBuff, outBuff, stamp, nil)
 	if err := outBuff.WriteFile(outFile); err != nil {
 		log.Fatal(err.Error())
 	}

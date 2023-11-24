@@ -108,7 +108,9 @@ func writeText(
 	// draw.DrawHairCross(buf, 0, 0, r)
 }
 
-func AddWatermark(rs io.ReadSeeker, w io.Writer, text string, conf *model.Configuration) error {
+// Stamp
+
+func AddStamp(rs io.ReadSeeker, w io.Writer, text string, conf *model.Configuration) error {
 	info, err := api.PDFInfo(rs, "", nil, nil)
 	if err != nil {
 		return err
@@ -117,28 +119,19 @@ func AddWatermark(rs io.ReadSeeker, w io.Writer, text string, conf *model.Config
 	}
 	var pages = []string{strconv.Itoa(info.PageCount)}
 
-	// font := "Roboto-Regular"
-	// desc := fmt.Sprintf("font:%s, rtl:off, align:l, scale:1.0 rel, rot:0, fillc:#000000, bgcol:#ab6f30, margin:10, border:10 round, opacity:.7", font)
-	// unit := types.POINTS
-	// wm, err := api.TextWatermark(text, desc, true, false, unit)
-	// if err != nil {
-	// 	return err
-	// }
-	// wm.Pos = types.BottomCenter
-
-	wm := TextWatermark(text)
+	wm := NewTextWatermark(text)
 
 	return api.AddWatermarks(rs, w, pages, wm, conf)
 }
 
-func TextWatermark(text string) *model.Watermark {
+func NewTextWatermark(text string) *model.Watermark {
 	textAlign := types.AlignLeft
 	bgColor := color.White
 	borderColor := color.Blue
 	textColor := color.Blue
 
 	wm := model.DefaultWatermarkConfig()
-	wm.OnTop = true
+	wm.OnTop = true // stamp
 	wm.InpUnit = types.POINTS
 	wm.Update = false
 	wm.Mode = model.WMText
