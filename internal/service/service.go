@@ -1,8 +1,11 @@
 package service
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"log"
+	"strconv"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
@@ -103,9 +106,22 @@ func writeText(
 	// draw.DrawHairCross(buf, 0, 0, r)
 }
 
-func AddWatermark(rs io.ReadSeeker, w io.Writer, text string) {
-	// font := "Roboto-Regular"
-	// desc := fmt.Sprintf("font:%s, rtl:off, align:l, scale:1.0 rel, rot:0, fillc:#000000, bgcol:#ab6f30, margin:10, border:10 round, opacity:.7", font)
-	// var pages = []string{"7"}
+func AddWatermark(rs io.ReadSeeker, w io.Writer, text string, conf *model.Configuration) error {
+	info, err := api.PDFInfo(rs, "", nil, nil)
+	if err != nil {
+		return err
+	} else if info == nil {
+		return errors.New("empty file info")
+	}
 
+	font := "Roboto-Regular"
+	desc := fmt.Sprintf("font:%s, rtl:off, align:l, scale:1.0 rel, rot:0, fillc:#000000, bgcol:#ab6f30, margin:10, border:10 round, opacity:.7", font)
+	var pages = []string{strconv.Itoa(info.PageCount)}
+	unit := types.POINTS
+	wm, err := api.TextWatermark(text, desc, true, false, unit)
+	if err != nil {
+		return err
+	}
+
+	return api.AddWatermarks(rs, w, pages, wm, conf)
 }

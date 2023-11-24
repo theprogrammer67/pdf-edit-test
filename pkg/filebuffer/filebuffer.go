@@ -35,6 +35,10 @@ func ReadFile(fn string) (*FileBuffer, error) {
 	return fb, err
 }
 
+func (fb *FileBuffer) WriteFile(fn string) error {
+	return os.WriteFile(fn, fb.buffer, 0644)
+}
+
 func (fb *FileBuffer) Bytes() []byte {
 	return fb.buffer
 }
