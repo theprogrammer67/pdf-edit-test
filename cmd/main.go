@@ -18,6 +18,7 @@ import (
 
 func main() {
 	fileDir := "/home/stoi/temp"
+	fileName := "Форма договора для юридических лиц"
 
 	api.LoadConfiguration()
 	font.UserFontDir, _ = filepath.Abs("../internal/fonts")
@@ -42,8 +43,8 @@ func main() {
 		fmt.Printf("Core font: %s\n", fn)
 	}
 
-	inFile := filepath.Join(fileDir, "braun_g1500.pdf")
-	outFile := filepath.Join(fileDir, "braun_g1500_stamp.pdf")
+	inFile := filepath.Join(fileDir, fileName+".pdf")
+	outFile := filepath.Join(fileDir, fileName+"_stamp.pdf")
 
 	inBuff, err := filebuffer.ReadFile(inFile)
 	if err != nil {
@@ -51,7 +52,7 @@ func main() {
 	}
 	outBuff := filebuffer.NewFileBuffer(nil)
 
-	service.AddWatermark(inBuff, outBuff, "Документ подписан", nil)
+	service.AddWatermark(inBuff, outBuff, "Документ подписан электронной подписью 30.10.2923 16:10 (МСК)\nКлиент    Курбатов Андрей Алесеевич\nЭлектронный документ    A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5", nil)
 	if err := outBuff.WriteFile(outFile); err != nil {
 		log.Fatal(err.Error())
 	}
@@ -64,7 +65,7 @@ func main() {
 	align, rtl := "l", "off"
 	desc := fmt.Sprintf("font:%s, rtl:%s, align:%s, scale:1.0 rel, rot:0, fillc:#000000, bgcol:#ab6f30, margin:10, border:10 round, opacity:.7", "Roboto-Regular", rtl, align)
 	var pages = []string{"7"}
-	err = api.AddTextWatermarksFile(inFile, outFile, pages, true, "Это сертификат", desc, nil)
+	err = api.AddTextWatermarksFile(inFile, outFile, pages, true, "Документ подписан электронной подписью\nКлиент\nЭлектронный документ", desc, nil)
 	if err != nil {
 		log.Fatalf("AddTextWatermarksFile %s: %v\n", outFile, err)
 	}

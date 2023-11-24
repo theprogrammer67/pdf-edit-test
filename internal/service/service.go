@@ -2,12 +2,14 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"strconv"
+	"strings"
+	"unicode/utf16"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/font"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/color"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/draw"
@@ -113,15 +115,83 @@ func AddWatermark(rs io.ReadSeeker, w io.Writer, text string, conf *model.Config
 	} else if info == nil {
 		return errors.New("empty file info")
 	}
-
-	font := "Roboto-Regular"
-	desc := fmt.Sprintf("font:%s, rtl:off, align:l, scale:1.0 rel, rot:0, fillc:#000000, bgcol:#ab6f30, margin:10, border:10 round, opacity:.7", font)
 	var pages = []string{strconv.Itoa(info.PageCount)}
-	unit := types.POINTS
-	wm, err := api.TextWatermark(text, desc, true, false, unit)
-	if err != nil {
-		return err
-	}
+
+	// font := "Roboto-Regular"
+	// desc := fmt.Sprintf("font:%s, rtl:off, align:l, scale:1.0 rel, rot:0, fillc:#000000, bgcol:#ab6f30, margin:10, border:10 round, opacity:.7", font)
+	// unit := types.POINTS
+	// wm, err := api.TextWatermark(text, desc, true, false, unit)
+	// if err != nil {
+	// 	return err
+	// }
+	// wm.Pos = types.BottomCenter
+
+	wm := TextWatermark(text)
 
 	return api.AddWatermarks(rs, w, pages, wm, conf)
+}
+
+func TextWatermark(text string) *model.Watermark {
+	textAlign := types.AlignLeft
+	bgColor := color.White
+	borderColor := color.Blue
+	textColor := color.Blue
+
+	wm := model.DefaultWatermarkConfig()
+	wm.OnTop = true
+	wm.InpUnit = types.POINTS
+	wm.Update = false
+	wm.Mode = model.WMText
+	wm.FontName = "Roboto-Regular"
+	wm.FontSize = 1
+	wm.ScaledFontSize = 1
+	wm.Pos = types.BottomCenter
+	wm.Rotation = 0
+	wm.UserRotOrDiagonal = true
+	wm.Diagonal = model.NoDiagonal
+	wm.HAlign = &textAlign
+	wm.Color = textColor
+	wm.StrokeColor = textColor
+	wm.FillColor = textColor
+	wm.FillColor = textColor
+	wm.MLeft, wm.MRight = 3, 3
+	wm.MTop, wm.MBot = 3, 3
+	wm.BorderWidth = 2
+	wm.BorderStyle = types.LJRound
+	wm.BorderColor = &borderColor
+	wm.BgColor = &bgColor
+	wm.Scale = 1
+	// wm.ScaleAbs = true
+	wm.Opacity = 0.7
+	// wm.Dx = 10
+	wm.Dy = 10
+	setTextWatermark(text, wm)
+
+	return wm
+}
+
+func setTextWatermark(s string, wm *model.Watermark) {
+	wm.TextString = s
+	if font.IsCoreFont(wm.FontName) {
+		bb := []byte{}
+		for _, r := range s {
+			// Unicode => char code
+			b := byte(0x20) // better use glyph: .notdef
+			if r <= 0xff {
+				b = byte(r)
+			}
+			bb = append(bb, b)
+		}
+		s = string(bb)
+	} else {
+		bb := []byte{}
+		u := utf16.Encode([]rune(s))
+		for _, i := range u {
+			bb = append(bb, byte((i>>8)&0xFF))
+			bb = append(bb, byte(i&0xFF))
+		}
+		s = string(bb)
+	}
+	s = strings.ReplaceAll(s, "\\n", "\n")
+	wm.TextLines = append(wm.TextLines, strings.FieldsFunc(s, func(c rune) bool { return c == 0x0a })...)
 }
