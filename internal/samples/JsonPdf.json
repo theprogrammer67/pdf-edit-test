@@ -1,0 +1,44 @@
+{
+	"paper": "A4P",
+	"crop": "10",
+	"origin": "LowerLeft",
+	"contentBox": true,
+	"debug": false,
+	"guides": true,
+	"pages": {
+		"1": {
+			"content": {
+				"text": [
+					{
+						"hide": false,
+						"value": "Первая строка\nВторая строка",
+						"pos": [
+							50,
+							50
+						],
+						"font": {
+							"name": "Roboto-Regular",
+                            "size": 12
+						}
+					}
+                ],
+				"image": [
+					{
+						"src": "../../../../temp/images/Avatar.jpg",
+						"pos": [
+							250,
+							150
+						],
+						"width": 200,
+						"height": 100,
+						"border": {
+							"width": 5,
+							"col": "#FF8C00",
+							"style": "round"
+						}
+					}
+                ]
+            }        
+        }
+    }
+}

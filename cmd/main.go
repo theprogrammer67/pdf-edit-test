@@ -17,28 +17,34 @@ import (
 )
 
 func main() {
-	fileDir := "/home/stoi/temp"
-	fileName := "Форма договора для юридических лиц"
+	var err error
 
-	api.LoadConfiguration()
+	fileDir, _ := filepath.Abs("../internal/samples")
+
+	conf := api.LoadConfiguration()
 	font.UserFontDir, _ = filepath.Abs("../internal/fonts")
 	fmt.Printf("Fonts dir: %s\n", font.UserFontDir)
 
-	fp := filepath.Join(font.UserFontDir, "Roboto-Regular.ttf")
+	fp := filepath.Join(font.UserFontDir, service.FontName+".ttf")
 	if err := api.InstallFonts([]string{fp}); err != nil {
 		log.Printf("Error install font: %v\n", err)
 	}
 
-	// for _, fn := range font.UserFontNames() {
-	// 	fmt.Printf("User font: %s\n", fn)
-	// }
+	// JSON to PDF
+	fileName := "JsonPdf"
+	inFile := filepath.Join(fileDir, fileName+".json")
+	outFile := filepath.Join(fileDir, fileName+".pdf")
+	err = service.CreatePdfFromJson(inFile, outFile, conf)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 
-	// for _, fn := range font.CoreFontNames() {
-	// 	fmt.Printf("Core font: %s\n", fn)
-	// }
+	return
 
-	inFile := filepath.Join(fileDir, fileName+".pdf")
-	outFile := filepath.Join(fileDir, fileName+"_stamp.pdf")
+	// Text stamp
+	fileName = "Форма договора для юридических лиц"
+	inFile = filepath.Join(fileDir, fileName+".pdf")
+	outFile = filepath.Join(fileDir, fileName+"_stamp.pdf")
 
 	inBuff, err := filebuffer.ReadFile(inFile)
 	if err != nil {
@@ -47,8 +53,24 @@ func main() {
 	outBuff := filebuffer.NewFileBuffer(nil)
 
 	stamp := "Документ подписан электронной подписью 30.10.2923 16:10 (МСК)\nКлиент    Курбатов Андрей Алексеевич\nЭлектронный документ    A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5"
-	service.AddStamp(inBuff, outBuff, stamp, nil)
-	if err := outBuff.WriteFile(outFile); err != nil {
+	err = service.AddStamp(inBuff, outBuff, stamp, conf)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	err = outBuff.WriteFile(outFile)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	// PDF stamp
+	outBuff = filebuffer.NewFileBuffer(nil)
+	outFile = filepath.Join(fileDir, "PDF_stamp.pdf")
+	err = service.CreatePdfStamp(outBuff, stamp, conf)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	err = outBuff.WriteFile(outFile)
+	if err != nil {
 		log.Fatal(err.Error())
 	}
 

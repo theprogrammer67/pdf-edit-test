@@ -1,0 +1,63 @@
+{
+	"paper": "A4P",
+	"crop": "10",
+	"origin": "LowerLeft",
+	"contentBox": true,
+	"debug": false,
+	"guides": true,
+	"colors": {
+		"DarkOrange": "#FF8C00",
+		"Beige": "#F5F5DC"
+	},
+	"dirs": {
+		"images": "./images"
+	},
+	"files": {
+		"logo1": "$images/Avatar.jpg",
+	},
+	"images": {
+		"logo1": {
+			"src": "$logo1",
+			"url": "https://rarus.ru",
+			"margin": {
+				"width": 5
+			}
+		}
+	},
+	"pages": {
+		"1": {
+			"content": {
+				"text": [
+					{
+						"hide": false,
+						"value": "first string\nsecond string",
+						"pos": [
+							50,
+							50
+						],
+						"font": {
+							"name": "Roboto-Regular",
+                            "size": 12
+						}
+					}
+                ],
+				"image": [
+					{
+						"src": "$logo1",
+						"pos": [
+							0,
+							0
+						],
+						"width": 200,
+						"height": 100,
+						"border": {
+							"width": 5,
+							"col": "$DarkOrange",
+							"style": "round"
+						}
+					}
+                ]
+            }        
+        }
+    }
+}
