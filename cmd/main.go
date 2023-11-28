@@ -19,11 +19,32 @@ import (
 func main() {
 	var err error
 
-	fileDir, _ := filepath.Abs("../internal/samples")
-	conf := api.LoadConfiguration()
-	pc := pdfcpu.New(fileDir)
-	fmt.Printf("pc: %v\n", pc)
+	// pdfscpu stamp
 
+	fileDir, _ := filepath.Abs("../internal/samples")
+	pc := pdfcpu.New(fileDir)
+
+	params := pdfcpu.StampParams{
+		Header:   "30.10.2923 16:10 (МСК)",
+		Client:   "Стовпец Игорь Александровчи",
+		Document: "A7A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5",
+	}
+	fileName := "Форма договора для юридических лиц"
+
+	err = pc.AddPdfStamp(
+		filepath.Join(fileDir, fileName+".pdf"),
+		filepath.Join(fileDir, fileName+"_stamp.pdf"),
+		&params,
+	)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	return
+
+	//////////////////////////////////////////////////////////////
+
+	conf := api.LoadConfiguration()
 	// font.UserFontDir, _ = filepath.Abs("../internal/fonts")
 	font.UserFontDir = filepath.Join(fileDir, "fonts")
 	fmt.Printf("Fonts dir: %s\n", font.UserFontDir)
@@ -34,7 +55,7 @@ func main() {
 	}
 
 	// JSON to PDF
-	fileName := "JsonPdf"
+	fileName = "JsonPdf"
 	inFile := filepath.Join(fileDir, fileName+".json")
 	outFile := filepath.Join(fileDir, fileName+".pdf")
 	err = pdfcpu.CreatePdfFromJson(inFile, outFile, conf)

@@ -3,6 +3,7 @@ package pdfcpu
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -36,7 +37,7 @@ type PdfCpu struct {
 
 type StampParams struct {
 	Header   string
-	Name     string
+	Client   string
 	Document string
 }
 
@@ -70,12 +71,85 @@ func New(resDir string) *PdfCpu {
 }
 
 func (p *PdfCpu) AddPdfStamp(inFile, outFile string, params *StampParams) error {
-	stampFile := filepath.Join(p.resDir, "stamp.ttf")
+	var err error
+	var b []byte
+	var info *pdfcpu.PDFInfo
 
-	err := api.CreateFile("", stampFile, outFile, p.conf)
+	info, err = p.getPdfInfo(inFile)
+	if err == nil {
+		err = checkPaperSize(info)
+		if err == nil {
+			pages := []string{strconv.Itoa(info.PageCount)}
+
+			stampJsonFile := outFile + ".json"
+			stampPdfFile := outFile + ".stamp.pdf"
+			stamp := *p.template
+			stamp.Texts.TextHeaderValue.Value = params.Header
+			stamp.Texts.TextClientValue.Value = params.Client
+			stamp.Texts.TextDocumentValue.Value = params.Document
+
+			b, err = json.Marshal(&stamp)
+			if err == nil {
+				err = os.WriteFile(stampJsonFile, b, 0644)
+
+				if err == nil {
+					defer func() {
+						os.Remove(stampJsonFile)
+					}()
+
+					err = api.CreateFile("", stampJsonFile, stampPdfFile, p.conf)
+					if err == nil {
+						defer func() {
+							os.Remove(stampPdfFile)
+						}()
+
+						var wm *model.Watermark
+						wm, err = api.PDFWatermark(stampPdfFile, "sc:1.0 abs, rotation:0", true, false, types.POINTS)
+						if err == nil {
+							err = api.AddWatermarksFile(inFile, outFile, pages, wm, p.conf)
+						}
+
+					}
+				}
+			}
+		}
+	}
 
 	return err
 }
+
+func (p *PdfCpu) getPdfInfo(inFile string) (*pdfcpu.PDFInfo, error) {
+	var info *pdfcpu.PDFInfo
+	var err error
+	var f *os.File
+
+	f, err = os.Open(inFile)
+	if err == nil {
+		defer f.Close()
+
+		info, err = api.PDFInfo(f, inFile, nil, p.conf)
+		if (err == nil) && (info == nil) {
+			err = errors.New("missing PDF Info")
+		}
+	}
+
+	return info, err
+}
+
+func checkPaperSize(info *pdfcpu.PDFInfo) error {
+	// A4 210 x 297 mm
+	for d := range info.PageDimensions {
+		dc := d.ToMillimetres()
+		if (dc.Width < 210) || (dc.Height < 297) {
+			e := fmt.Sprintf("page format %.2f x %.2f mm is unsupported", dc.Width, dc.Height)
+			return errors.New(e)
+		}
+	}
+
+	return nil
+}
+
+/////////////
 
 func CreatePdf(fileName string, text string) {
 	mediaBox := types.RectForFormat("A4")
@@ -195,10 +269,4 @@ func setTextWatermark(s string, wm *model.Watermark) {
 	}
 	s = strings.ReplaceAll(s, "\\n", "\n")
 	wm.TextLines = append(wm.TextLines, strings.FieldsFunc(s, func(c rune) bool { return c == 0x0a })...)
-}
-
-func jsonToMap(j []byte) map[string]any {
-	result := make(map[string]interface{})
-	json.Unmarshal(j, &result)
-	return result
 }
