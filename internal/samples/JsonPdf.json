@@ -5,9 +5,40 @@
 	"contentBox": true,
 	"debug": false,
 	"guides": true,
+	"dirs": {
+		"images": "../internal/samples/images"
+	},
+	"files": {
+		"logo1": "$images/RarusLogo.png"
+	},
+	"borders": {
+		"myBorder": {
+			"width": 5,
+			"col": "#0000FF",
+			"style": "round"
+		}
+	},
 	"pages": {
 		"1": {
 			"content": {
+				"box": [
+					{
+						"pos": [
+							-1,
+							0
+						],
+						"width": 550,
+						"height": 80,
+						"fillCol": "#E9967A",
+						"margin": {
+							"width": 10
+						},
+						"border": {
+							"name": "$myBorder"
+						},
+						"rot": 0
+					}
+                ],
 				"text": [
 					{
 						"hide": false,
@@ -24,13 +55,16 @@
                 ],
 				"image": [
 					{
-						"src": "../../../../temp/images/Avatar.jpg",
+						"src": "$logo1",
 						"pos": [
-							250,
-							150
+							350,
+							20
 						],
 						"width": 200,
-						"height": 100,
+						"height": 50,
+						"margin": {
+							"width": 10
+						},
 						"border": {
 							"width": 5,
 							"col": "#FF8C00",

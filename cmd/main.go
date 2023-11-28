@@ -22,7 +22,8 @@ func main() {
 	fileDir, _ := filepath.Abs("../internal/samples")
 
 	conf := api.LoadConfiguration()
-	font.UserFontDir, _ = filepath.Abs("../internal/fonts")
+	// font.UserFontDir, _ = filepath.Abs("../internal/fonts")
+	font.UserFontDir = filepath.Join(fileDir, "fonts")
 	fmt.Printf("Fonts dir: %s\n", font.UserFontDir)
 
 	fp := filepath.Join(font.UserFontDir, service.FontName+".ttf")
