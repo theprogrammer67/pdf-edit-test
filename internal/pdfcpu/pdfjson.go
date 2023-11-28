@@ -1,4 +1,4 @@
-package service
+package pdfcpu
 
 import (
 	"github.com/pdfcpu/pdfcpu/pkg/api"

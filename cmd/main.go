@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
-	"pdf-edit/internal/service"
+	"pdf-edit/internal/pdfcpu"
 	"pdf-edit/pkg/filebuffer"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/font"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
+	pdf "github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/color"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/draw"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
@@ -20,13 +20,15 @@ func main() {
 	var err error
 
 	fileDir, _ := filepath.Abs("../internal/samples")
-
 	conf := api.LoadConfiguration()
+	pc := pdfcpu.New(fileDir)
+	fmt.Printf("pc: %v\n", pc)
+
 	// font.UserFontDir, _ = filepath.Abs("../internal/fonts")
 	font.UserFontDir = filepath.Join(fileDir, "fonts")
 	fmt.Printf("Fonts dir: %s\n", font.UserFontDir)
 
-	fp := filepath.Join(font.UserFontDir, service.FontName+".ttf")
+	fp := filepath.Join(font.UserFontDir, pdfcpu.FontName+".ttf")
 	if err := api.InstallFonts([]string{fp}); err != nil {
 		log.Printf("Error install font: %v\n", err)
 	}
@@ -35,7 +37,7 @@ func main() {
 	fileName := "JsonPdf"
 	inFile := filepath.Join(fileDir, fileName+".json")
 	outFile := filepath.Join(fileDir, fileName+".pdf")
-	err = service.CreatePdfFromJson(inFile, outFile, conf)
+	err = pdfcpu.CreatePdfFromJson(inFile, outFile, conf)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -47,7 +49,7 @@ func main() {
 	outFile = filepath.Join(fileDir, fileName+"_stamp.pdf")
 	wmFile := filepath.Join(fileDir, wmFileName+".pdf")
 
-	err = service.AddPdfStamp(inFile, outFile, wmFile)
+	err = pdfcpu.AddPdfStamp(inFile, outFile, wmFile)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -66,7 +68,7 @@ func main() {
 	outBuff := filebuffer.NewFileBuffer(nil)
 
 	stamp := "Документ подписан электронной подписью 30.10.2923 16:10 (МСК)\nКлиент    Курбатов Андрей Алексеевич\nЭлектронный документ    A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5"
-	err = service.AddTextStamp(inBuff, outBuff, stamp, conf)
+	err = pdfcpu.AddTextStamp(inBuff, outBuff, stamp, conf)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -78,7 +80,7 @@ func main() {
 	// PDF stamp
 	outBuff = filebuffer.NewFileBuffer(nil)
 	outFile = filepath.Join(fileDir, "PDF_stamp.pdf")
-	err = service.CreatePdfStamp(outBuff, stamp, conf)
+	err = pdfcpu.CreatePdfStamp(outBuff, stamp, conf)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -90,7 +92,7 @@ func main() {
 	return
 
 	fp = filepath.Join(fileDir, "Certificate.pdf")
-	service.CreatePdf(fp, "This is certificate\nSecond line\nЭто сертификат")
+	pdfcpu.CreatePdf(fp, "This is certificate\nSecond line\nЭто сертификат")
 
 	align, rtl := "l", "off"
 	desc := fmt.Sprintf("font:%s, rtl:%s, align:%s, scale:1.0 rel, rot:0, fillc:#000000, bgcol:#ab6f30, margin:10, border:10 round, opacity:.7", "Roboto-Regular", rtl, align)
@@ -166,7 +168,7 @@ func createPdf(fileName string) {
 }
 
 func createXRefAndWritePDF(fileName string, mediaBox *types.Rectangle, f func(xRefTable *model.XRefTable, mediaBox *types.Rectangle) model.Page) {
-	xRefTable, err := pdfcpu.CreateDemoXRef()
+	xRefTable, err := pdf.CreateDemoXRef()
 	if err != nil {
 		log.Fatalf("createXRefAndWritePDF: %v\n", err)
 	}
@@ -177,7 +179,7 @@ func createXRefAndWritePDF(fileName string, mediaBox *types.Rectangle, f func(xR
 	if err != nil {
 		log.Fatalf("createXRefAndWritePDF: %v\n", err)
 	}
-	if err = pdfcpu.AddPageTreeWithSamplePage(xRefTable, rootDict, p); err != nil {
+	if err = pdf.AddPageTreeWithSamplePage(xRefTable, rootDict, p); err != nil {
 		log.Fatalf("createXRefAndWritePDF: %v\n", err)
 	}
 

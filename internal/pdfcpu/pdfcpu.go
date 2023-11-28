@@ -1,9 +1,12 @@
-package service
+package pdfcpu
 
 import (
+	"encoding/json"
 	"errors"
 	"io"
 	"log"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"unicode/utf16"
@@ -15,6 +18,64 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 )
+
+func check(e error) {
+	if e != nil {
+		log.Fatal(e)
+	}
+}
+
+type PdfCpu struct {
+	resDir    string
+	conf      *model.Configuration
+	fontName  string
+	stampDim  types.Dim
+	stampFile string
+	template  *Stamp
+}
+
+type StampParams struct {
+	Header   string
+	Name     string
+	Document string
+}
+
+func New(resDir string) *PdfCpu {
+	var err error
+	var b []byte
+
+	p := &PdfCpu{
+		resDir:    resDir,
+		fontName:  "Roboto-Regular",
+		stampDim:  types.Dim{Width: 595, Height: 50},
+		stampFile: "stamp.pdf",
+		template:  &Stamp{},
+	}
+	p.conf = api.LoadConfiguration()
+
+	// fonts
+	font.UserFontDir = filepath.Join(p.resDir, "fonts")
+	err = api.InstallFonts([]string{filepath.Join(font.UserFontDir, p.fontName+".ttf")})
+	check(err)
+
+	// template
+	b, err = os.ReadFile(filepath.Join(p.resDir, "template.json"))
+	check(err)
+
+	err = json.Unmarshal(b, p.template)
+	check(err)
+	p.template.Dirs.Images = filepath.Join(p.resDir, "images")
+
+	return p
+}
+
+func (p *PdfCpu) AddPdfStamp(inFile, outFile string, params *StampParams) error {
+	stampFile := filepath.Join(p.resDir, "stamp.ttf")
+
+	err := api.CreateFile("", stampFile, outFile, p.conf)
+
+	return err
+}
 
 func CreatePdf(fileName string, text string) {
 	mediaBox := types.RectForFormat("A4")
@@ -48,8 +109,7 @@ func AddPdfStamp(inFile, outFile, wmFile string) error {
 	var wm *model.Watermark
 	onTop := false
 	update := false
-	// Add a PDF stamp to all pages of in.pdf using the 2nd page of stamp.pdf, use absolute scaling of 0.5
-	// and rotate along the 2nd diagonal running from upper left to lower right corner.
+
 	wm, err = api.PDFWatermark(wmFile, "sc:1.0 abs, rotation:0", onTop, update, types.POINTS)
 	if err == nil {
 		err = api.AddWatermarksFile(inFile, outFile, nil, wm, nil)
@@ -135,4 +195,10 @@ func setTextWatermark(s string, wm *model.Watermark) {
 	}
 	s = strings.ReplaceAll(s, "\\n", "\n")
 	wm.TextLines = append(wm.TextLines, strings.FieldsFunc(s, func(c rune) bool { return c == 0x0a })...)
+}
+
+func jsonToMap(j []byte) map[string]any {
+	result := make(map[string]interface{})
+	json.Unmarshal(j, &result)
+	return result
 }

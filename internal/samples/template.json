@@ -1,0 +1,157 @@
+{
+	"paper": "A4P",
+	"crop": "10",
+	"origin": "LowerLeft",
+	"contentBox": false,
+	"debug": false,
+	"guides": false,
+	"dirs": {
+		"images": "../internal/samples/images"
+	},
+	"files": {
+		"logo1": "$images/RarusLogo.png"
+	},
+	"borders": {
+		"myBorder": {
+			"width": 3,
+			"col": "#0000FF",
+			"style": "round"
+		}
+	},
+	"fonts": {
+		"labelFont": {
+			"name": "Roboto-Regular",
+			"col": "#0000FF",
+			"size": 8
+		}
+	},	
+    "texts": {
+		"textHeaderLabel": {
+			"align": "left",
+			"font": {
+				"name": "$labelFont"
+			},
+			"value": "Документ подписан электронной подписью"
+		},
+		"textHeaderValue": {
+			"align": "left",
+			"font": {
+				"name": "$labelFont"
+			},
+			"value": "30.10.2923 16:10 (МСК)"
+		},
+		"textClientLabel": {
+			"align": "left",
+			"font": {
+				"name": "$labelFont"
+			},
+			"value": "Клиент"
+		},
+		"textClientValue": {
+			"align": "left",
+			"font": {
+				"name": "$labelFont"
+			},
+			"value": "Курбатов Андрей Алексеевич"
+		},
+		"textDocumentLabel": {
+			"align": "left",
+			"font": {
+				"name": "$labelFont"
+			},
+			"value": "Электронный документ"
+		},
+		"textDocumentValue": {
+			"align": "left",
+			"font": {
+				"name": "$labelFont"
+			},
+			"value": "A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5"
+		}
+
+	},
+	"pages": {
+		"1": {
+			"content": {
+				"box": [
+					{
+						"pos": [
+							10,
+							10
+						],
+						"width": 550,
+						"height": 80,
+						"fillCol": "#FFFFFF",
+						"border": {
+							"name": "$myBorder"
+						},
+						"rot": 0
+					}
+                ],
+				"text": [
+					{
+						"name": "$textHeaderLabel",
+						"hide": false,
+						"pos": [
+							20,
+							70
+						]
+					},
+					{
+						"name": "$textHeaderValue",
+						"hide": false,
+						"pos": [
+							230,
+							70
+						]
+					},
+					{
+						"name": "$textClientLabel",
+						"hide": false,
+						"pos": [
+							20,
+							60
+						]
+					},
+					{
+						"name": "$textClientValue",
+						"hide": false,
+						"pos": [
+							230,
+							60
+						]
+					},
+					{
+						"name": "$textDocumentLabel",
+						"hide": false,
+						"pos": [
+							20,
+							50
+						]
+					},
+					{
+						"name": "$textDocumentValue",
+						"hide": false,
+						"pos": [
+							230,
+							50
+						]
+					}
+
+
+                ],
+				"image": [
+					{
+						"src": "$logo1",
+						"pos": [
+							455,
+							15
+						],
+						"width": 100,
+						"height": 30
+					}
+                ]
+            }        
+        }
+    }
+}
