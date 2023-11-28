@@ -18,21 +18,32 @@
 			"style": "round"
 		}
 	},
+	"fonts": {
+		"labelFont": {
+			"name": "Roboto-Regular",
+			"size": 8
+		}
+	},	"texts": {
+		"textLabel": {
+			"align": "left",
+			"font": {
+				"name": "$labelFont"
+			},
+			"value": "Документ подписан электронной подписью 30.10.2923 16:10 (МСК)\nКлиент    Курбатов Андрей Алексеевич\nЭлектронный документ    A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5"
+		}
+	},
 	"pages": {
 		"1": {
 			"content": {
 				"box": [
 					{
 						"pos": [
-							-1,
-							0
+							10,
+							10
 						],
 						"width": 550,
 						"height": 80,
 						"fillCol": "#E9967A",
-						"margin": {
-							"width": 10
-						},
 						"border": {
 							"name": "$myBorder"
 						},
@@ -41,16 +52,12 @@
                 ],
 				"text": [
 					{
+						"name": "$textLabel",
 						"hide": false,
-						"value": "Первая строка\nВторая строка",
 						"pos": [
 							50,
 							50
-						],
-						"font": {
-							"name": "Roboto-Regular",
-                            "size": 12
-						}
+						]
 					}
                 ],
 				"image": [
@@ -62,9 +69,6 @@
 						],
 						"width": 200,
 						"height": 50,
-						"margin": {
-							"width": 10
-						},
 						"border": {
 							"width": 5,
 							"col": "#FF8C00",
