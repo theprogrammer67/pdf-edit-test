@@ -43,7 +43,22 @@ func CreatePdf(fileName string, text string) {
 
 // Stamp
 
-func AddStamp(rs io.ReadSeeker, w io.Writer, text string, conf *model.Configuration) error {
+func AddPdfStamp(inFile, outFile, wmFile string) error {
+	var err error
+	var wm *model.Watermark
+	onTop := false
+	update := false
+	// Add a PDF stamp to all pages of in.pdf using the 2nd page of stamp.pdf, use absolute scaling of 0.5
+	// and rotate along the 2nd diagonal running from upper left to lower right corner.
+	wm, err = api.PDFWatermark(wmFile, "sc:1.0 abs, rotation:0", onTop, update, types.POINTS)
+	if err == nil {
+		err = api.AddWatermarksFile(inFile, outFile, nil, wm, nil)
+	}
+
+	return err
+}
+
+func AddTextStamp(rs io.ReadSeeker, w io.Writer, text string, conf *model.Configuration) error {
 	info, err := api.PDFInfo(rs, "", nil, nil)
 	if err != nil {
 		return err

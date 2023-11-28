@@ -2,9 +2,9 @@
 	"paper": "A4P",
 	"crop": "10",
 	"origin": "LowerLeft",
-	"contentBox": true,
+	"contentBox": false,
 	"debug": false,
-	"guides": true,
+	"guides": false,
 	"dirs": {
 		"images": "../internal/samples/images"
 	},

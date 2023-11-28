@@ -40,6 +40,18 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	// PDF stamp
+	fileName = "Форма договора для юридических лиц"
+	wmFileName := "JsonPdf"
+	inFile = filepath.Join(fileDir, fileName+".pdf")
+	outFile = filepath.Join(fileDir, fileName+"_stamp.pdf")
+	wmFile := filepath.Join(fileDir, wmFileName+".pdf")
+
+	err = service.AddPdfStamp(inFile, outFile, wmFile)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 	return
 
 	// Text stamp
@@ -54,7 +66,7 @@ func main() {
 	outBuff := filebuffer.NewFileBuffer(nil)
 
 	stamp := "Документ подписан электронной подписью 30.10.2923 16:10 (МСК)\nКлиент    Курбатов Андрей Алексеевич\nЭлектронный документ    A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5"
-	err = service.AddStamp(inBuff, outBuff, stamp, conf)
+	err = service.AddTextStamp(inBuff, outBuff, stamp, conf)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
